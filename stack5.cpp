@@ -38,21 +38,6 @@ int main()
 	int k=0;
 	int count=0;
 	push(s,k);
-	while(check(c))
-	{
-		for(int i=0;i<13;i++)
-		{
-			if(a[i][k]==1 && c[i]==-1)
-			{
-				push(s,i);
-				c[i]=k;
-				cout<<k;
-				a[i][k]=0;
-				k=i;
-				break;
-			}
-		}	
-	}
 	for(int i=0;i<13;i++)
 	{
 		cout<<c[i]<<" ";
