@@ -1,85 +1,138 @@
-#include <stdio.h>
-#include <stdlib.h>
-struct AdjListNode
-{
-    int dest;
-    struct AdjListNode* next;
-};
+#include <iostream>
+#include <cmath>
+#include <string>
+#include <vector>
+#include <queue>
+#define UNVISITED -1
+#define VISITED 1
 
-struct AdjList
-{
-    struct AdjListNode *head;
-};
-struct Graph
-{
-    int V;
-    struct AdjList* array;
-};
+using namespace std;
 
-struct AdjListNode* newAdjListNode(int dest)
-{
-    struct AdjListNode* newNode =
-    (struct AdjListNode*) malloc(sizeof(struct AdjListNode));
-    newNode->dest = dest;
-    newNode->next = NULL;
-    return newNode;
-}
+typedef vector<long> vl;
+typedef vector<int> vi;
+typedef vector<long long> vll;
 
-struct Graph* createGraph(int V)
-{
-    struct Graph* graph =
-    (struct Graph*) malloc(sizeof(struct Graph));
-    graph->V = V;
-    graph->array =
-    (struct AdjList*) malloc(V * sizeof(struct AdjList));
+int N, M;
+int dfsNumberCounter, numSCC;
+vector<vl> graph;
+vi dfs_num, dfs_low, S, visited, contaminated;
+vll routes;
 
-    int i;
-    for (i = 0; i < V; ++i)
-        graph->array[i].head = NULL;
-    
-    return graph;
-}
-
-// Adds an edge to an undirected graph
-void addEdge(struct Graph* graph, int src, int dest)
-{
-    struct AdjListNode* newNode = newAdjListNode(dest);
-    newNode->next = graph->array[src].head;
-    graph->array[src].head = newNode;
-    
-    newNode = newAdjListNode(src);
-    newNode->next = graph->array[dest].head;
-    graph->array[dest].head = newNode;
-}
-
-void printGraph(struct Graph* graph)
-{
-    int v;
-    for (v = 0; v < graph->V; ++v)
-    {
-        struct AdjListNode* pCrawl = graph->array[v].head;
-        while (pCrawl)
-        {
-            printf("-> %d", pCrawl->dest);
-            pCrawl = pCrawl->next;
-        }
-        printf("\n");
+void travel_graph(int start){
+  int u; // current vertex
+  queue<int> q;
+  q.push(start);
+  while(q.empty() == false){
+    u=q.front();
+    // cout << u+1 << " travel current" << endl;
+    visited[u]=1;
+    q.pop();
+    for(int i = 0; i < graph[u].size(); i++){
+      int v = graph[u][i];
+      if(contaminated[v]!=1 && visited[v]!=1){
+        // cout << "DFS at " << u+1 << " on " << v+1 << " with " << routes[v] << " routes " << endl;
+        q.push(v);
+        routes[v] += routes[u];
+        // cout << "Vertex " << u+1 <<" adds to " << v + 1 << endl;
+      }
     }
+  }
 }
 
-int main()
-{
-    int V = 5;
-    struct Graph* graph = createGraph(V);
-    addEdge(graph, 0, 1);
-    addEdge(graph, 0, 4);
-    addEdge(graph, 1, 2);
-    addEdge(graph, 1, 3);
-    addEdge(graph, 1, 4);
-    addEdge(graph, 2, 3);
-    addEdge(graph, 3, 4);
-    
-    printGraph(graph);
-    
-    return 0;
+void tarjanSCC(int u){
+  // cout << u+1 << " current" << endl;
+  dfs_low[u] = dfs_num[u] = dfsNumberCounter++;
+  S.push_back(u);
+  visited[u] = 1;
+  for(int j = 0; j < graph[u].size(); j++){
+    int v = graph[u][j];
+    if(dfs_num[v] == UNVISITED){
+      // cout << "DFS at " << u+1 << " adding " << v+1 << " to stack " << endl;
+
+      tarjanSCC(v);
+    }
+    if(visited[v])
+      dfs_low[u] = min(dfs_low[u], dfs_low[v]);
+  }
+}
+
+void print_last_nine(long long w);
+void print_graph();
+
+int main ()
+{ 
+  cin >> N >> M;
+
+  graph.assign(N, vl());
+  dfs_num.assign(N, UNVISITED);
+  dfs_low.assign(N, 0);
+  visited.assign(N, 0);
+  contaminated.assign(N, 0);
+  routes.assign(N, 0);
+  routes[0]=1;
+  dfsNumberCounter = numSCC = 0;
+
+  for(int i = 0; i < M; i++){
+    int a, b;
+    cin >> a >> b;
+    graph[a-1].push_back(b-1);
+  }
+  tarjanSCC(0);
+
+  for(int i = 0; i < S.size(); i++){
+    int vertex = S[i];
+    if(contaminated[vertex]){
+      // cout << vertex+1 << " contaminated c." << endl;
+      for(int j = 0; j < graph[vertex].size();j++){
+        contaminated[graph[vertex][j]]=1;
+      }
+    } else if((dfs_low[vertex] == dfs_low[vertex+1] || dfs_low[vertex] == dfs_low[vertex-1]) && i != 0 ){
+      // cout << vertex+1 << " contaminated." << endl;
+      for(int j = 0; j < graph[vertex].size();j++){
+        contaminated[graph[vertex][j]]=1;
+      }
+      contaminated[vertex]=1;
+    }
+  }
+
+  visited.assign(N, 0);
+  travel_graph(0);
+  if(contaminated[1]){
+    cout << "inf" << endl;
+  } else if(routes[1]>999999999){
+    print_last_nine(routes[1]);
+  } else{
+    cout << routes[1] << endl;
+  }
+
+
+  return 0;
+}
+void print_last_nine(long long w){
+  int length = 1;
+  long long x=w%1000000000;
+  while ( x /= 10 )
+    length++;
+  for(int i = 0; i < 9-length; i++){
+    cout << 0;
+  }
+  cout << w%1000000000 << endl;//missing check
+}
+
+void print_graph(){
+  for(int i = 0; i < N; i++){
+    // if(processed[i])
+    //   cout << "P  ";
+    // else
+    //   cout << "nP ";
+    // if(contaminated[i])
+    //   cout << "C  ";
+    // else
+    //   cout << "nC ";
+    cout << i+1 << "<" << routes[i] << ">" << ": ";
+    for(int j=0; j < graph[i].size(); j++ ){
+      cout << graph[i][j]+1 << " ";
+    }
+    cout << endl;
+  }
 }
