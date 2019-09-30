@@ -13,9 +13,6 @@ bool isfull(stack s);
 void push(stack &s,int n);
 int pop(stack &s);
 int top(stack s);
-void chuyendoi16(stack s,int n);
-void chuyendoi2(stack s,int n);
-void chuyendoi8(stack s,int n);
 int main()
 {
     struct stack s;
@@ -26,9 +23,9 @@ int main()
     cout<<"nhap co so muon chuyen: ";
     int k;
     cin>>k;
-    if (k==2) chuyendoi2(s,n);
-    else if (k==8) chuyendoi8(s,n);
-    else if (k==16) chuyendoi16(s,n);
+    if (k==2) chuyendoi2(s,n,2);
+    else if (k==8) chuyendoi8(s,n,8);
+    else if (k==16) chuyendoi16(s,n,16);
     return 0;
 }
 void Init(stack &s)
@@ -60,45 +57,15 @@ int pop(stack &s)
 int top(stack s)
 {
     return s.StkArray[s.StkCount];
-}
-void chuyendoi2(stack s,int n)
+
+void chuyendoi16(stack s,int n, int m)
 {
-    int k=n/2;
-    while(k!=0)
-    {
-        push(s,n-k*2);
-        n=k;
-        k=n/2;
-    }
-    int h=s.StkCount;
-    for(int i=0;i<h+1;i++)
-    {
-        cout<<top(s);
-        pop(s);
-    }
-    cout<<endl;
-}
-void chuyendoi8(stack s,int n)
-{
-    while (n>0)
-    {
-    	int k=n%8;
-    	push(s,k);
-    	n=n/8;
-	}
-    while (isempty(s))
-    {
-    	cout<<pop(s);
-	}
-}
-void chuyendoi16(stack s,int n)
-{
-    int k=n/16;
+    int k=n/m;
     while(k!=0)
     {
         push(s,n-k*16);
         n=k;
-        k=n/16;
+        k=n/m;
     }
     push(s,n);
     pop(s);
