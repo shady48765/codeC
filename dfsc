@@ -1,0 +1,86 @@
+#include <iostream>
+
+#include <fstream>
+
+#include <vector>
+
+using namespace std;
+
+//ifstream fi("a.inp");
+
+//ofstream fo("a.out");
+
+int n,m;
+
+vector <int> g[10001];
+
+int d[10001]={0};
+
+int dem=0;
+
+void nhapdl()
+
+{
+
+//    fi>>n>>m;
+
+cin>>n>>m;
+
+    for(int i=1;i<=m;i++)
+
+    {
+
+        int x,y;
+
+//        fi>>x>>y;
+
+cin>>x>>y;
+
+        g[x].push_back(y);
+
+        g[y].push_back(x);
+
+    }
+
+}
+
+void dfs(int s)
+
+{
+
+    d[s]=1;
+
+    for(int i=0;i<g[s].size();i++)
+
+        {int v=g[s][i];
+
+    if(d[v]==0) dfs(v);}
+
+}
+
+int main()
+
+{
+
+    nhapdl();
+
+    for(int i=1;i<=n;i++)
+
+        if(d[i]==0)
+
+    {
+
+        dem++;
+
+        dfs(i);
+
+    }
+
+//    fo<<m-n+dem<<endl;
+
+cout<<m-n+dem<<endl;
+
+    return 0;
+
+}
+
