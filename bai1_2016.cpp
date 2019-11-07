@@ -1,34 +1,44 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <iostream>
 using namespace std;
-#include <math.h>
+int tinh(int b[500], int k);
 int main()
 {
-    srand(time(NULL));
     int n=9;
     int a[9]={11,1,2,1,1,5,10,2,3};
     int t=10;
     int d=0;
-    for(int i=0;i<n;i++)
+    int b[500]={0};
+    b[1]=1;
+    int i=0;
+    while(i<n-1)
     {
         int j=i;
         int d1=0;
-        int d2=0;
-        while(d1<=t)
+        while(d1<=t && j<=n)
         {
             d1+=a[j];
             j++;
-            d2++;
         }
-        d+=d2-1;
+        if(a[j-1]>t) i++;
+        else
+        {
+        	d+=tinh(b,j-i-1);
+        	i=j-1;
+    	}
     }
-    cout<<n<<"\t"<<t<<endl;
+    cout<<n<<" "<<t<<endl;
     for(int i=0;i<n;i++)
     {
-        cout<<a[i]<<"\t";
+        cout<<a[i]<<" ";
     }
     cout<<"\n"<<d<<endl;
     return 0;
+}
+int tinh(int b[500], int k)
+{
+	if(k!=1 && b[k-1]==0) tinh(b,k-1);
+	b[k]=b[k-1]+k;
+	return b[k];
 }
